@@ -142,7 +142,7 @@ namespace AssemblyFixer
                 foreach (CustomAttribute attribute in new HashSet<CustomAttribute>(fieldDef.CustomAttributes))
                 {
                     string scopeName = attribute.AttributeType.Scope.Name;
-                    if (attribute.AttributeType.FullName != "UnityEngine.SerializeField.dll" && scopeName != "mscorlib.dll" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
+                    if (scopeName != "mscorlib.dll" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
                         fieldDef.CustomAttributes.Remove(attribute);
                 }
             }
