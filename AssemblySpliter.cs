@@ -187,10 +187,7 @@ namespace AssemblyFixer
                         if (!parameter.IsGenericParameter)
                         {
                             typeRefs.Add(parameter);
-                            foreach (var Types in _GetGenericTypes(parameter))
-                            {
-                                _GetInternal(parameter);
-                            }
+                            _GetInternal(parameter);
                         }
                     }
                 }

@@ -2,8 +2,8 @@ import UnityPy
 from pathlib import Path
 from get_abfile_dependences import *
 
-BASE_PATH = Path(r"D:/ArkAssets")
-SCENE_PATH = 'scenes/obt/main/level_main_01-07/level_main_01-07.ab'
+BASE_PATH = Path(r"D:/ArkAssets") # 下载资源存储位置
+SCENE_PATH = 'scenes/obt/main/level_main_01-07/level_main_01-07.ab' # 场景文件
 
 manifest_env = UnityPy.load(str(BASE_PATH / 'torappu.ab'))
 
@@ -25,5 +25,5 @@ for dep in get_deps(get_manifest(manifest_env), SCENE_PATH):
 
 scripts = set(scripts) #去重
 
-with open('D:/ArknightsAssets/scripts.txt', 'w', encoding='utf-8') as f:
+with open('D:/ArknightsMapAssets/scripts.txt', 'w', encoding='utf-8') as f: # 导出位置
     f.write('\n'.join(scripts))
