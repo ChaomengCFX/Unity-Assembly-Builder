@@ -97,7 +97,7 @@ namespace AssemblyFixer
                         else
                         {
                             TypeDefinition fieldTypeDef = fieldTypeRef.Resolve();
-                            if (fieldTypeDef.Attributes.HasFlag(TypeAttributes.Serializable))
+                            if (typeDef.Attributes.HasFlag(TypeAttributes.Serializable) || fieldTypeDef.Attributes.HasFlag(TypeAttributes.Serializable))
                             {
                                 _ClearCustomAttributesOfField(fieldDef);
                                 deps.Add(fieldTypeDef);
