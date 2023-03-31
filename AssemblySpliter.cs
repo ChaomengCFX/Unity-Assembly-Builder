@@ -57,7 +57,8 @@ namespace AssemblyFixer
                             {
                                 _ClearCustomAttributesOfField(fieldDef);
                                 TypeReference fieldTypeRef = fieldDef.FieldType;
-                                if (!fieldTypeRef.IsGenericParameter)
+
+                                if (!fieldTypeRef.ContainsGenericParameter)
                                 {
                                     TypeDefinition fieldTypeDef = fieldTypeRef.Resolve();
                                     deps.Add(fieldTypeDef);
@@ -89,7 +90,7 @@ namespace AssemblyFixer
                             deps.Add(fieldTypeRef.Resolve());
                             continue;
                         }
-                        else if (fieldTypeRef.IsGenericParameter)
+                        else if (fieldTypeRef.ContainsGenericParameter)
                         {
                             _ClearCustomAttributesOfField(fieldDef);
                             continue;
@@ -201,7 +202,7 @@ namespace AssemblyFixer
                 {
                     foreach (TypeReference parameter in ((IGenericInstance)_typeRef).GenericArguments)
                     {
-                        if (!parameter.IsGenericParameter)
+                        if (!parameter.ContainsGenericParameter)
                         {
                             typeRefs.Add(parameter);
                             _GetInternal(parameter);
@@ -233,7 +234,7 @@ namespace AssemblyFixer
             {
                 foreach (TypeReference parameter in ((IGenericInstance)baseTypeRef).GenericArguments)
                 {
-                    if (!parameter.IsGenericParameter)
+                    if (!parameter.ContainsGenericParameter)
                     {
                         _HandleType(parameter.Resolve());
                     }
