@@ -341,6 +341,7 @@ namespace AssemblyFixer
 
             foreach (AssemblyDefinition assembly in m_assemblys)
             {
+                if (assembly.MainModule.Types.Count == 0) continue;
                 Console.WriteLine(string.Format("\u001b[1;32mWriting assembly [{0}] ...\u001b[m", assembly.MainModule.Name));
                 assembly.Write(Path.Combine(path, assembly.MainModule.Name));
             }
