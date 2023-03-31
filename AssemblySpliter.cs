@@ -97,7 +97,7 @@ namespace AssemblyFixer
                         else
                         {
                             TypeDefinition fieldTypeDef = fieldTypeRef.Resolve();
-                            if (typeDef.Attributes.HasFlag(TypeAttributes.Serializable) || fieldTypeDef.Attributes.HasFlag(TypeAttributes.Serializable))
+                            if (_IsUnityObject(fieldTypeDef) || fieldTypeDef.Attributes.HasFlag(TypeAttributes.Serializable) || fieldTypeDef.FullName == "System.Collections.Generic.List`1")
                             {
                                 _ClearCustomAttributesOfField(fieldDef);
                                 deps.Add(fieldTypeDef);
@@ -133,6 +133,23 @@ namespace AssemblyFixer
             Console.WriteLine(string.Format("\u001b[36mSplited {0}\u001b[m", typeDef));
 
             return deps.Count != 0;
+        }
+
+        private static bool _IsUnityObject(TypeDefinition typeDef)
+        {
+            TypeReference? baseRef = typeDef?.BaseType;
+            if (baseRef == null) return false;
+            if (baseRef.FullName == "UnityEngine.Object") return true;
+            else
+            {
+                TypeDefinition baseDef = baseRef.Resolve();
+                if (baseDef == null)
+                {
+                    Console.Write($"\u001b[1;31mCan't resolve {baseRef.FullName}\u001b[m");
+                    return false;
+                }
+                return _IsUnityObject(baseDef);
+            }
         }
 
         private static void _ClearCustomAttributesOfField(FieldDefinition fieldDef)
