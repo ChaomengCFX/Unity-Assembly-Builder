@@ -2,7 +2,7 @@ import UnityPy
 
 unity3d = r"D:\level_custom.unity3d"
 unity3d_fixed = r"D:\level_custom-fixed.unity3d"
-ab = r"D:\ArknightsMapAssets\Level_01-07_assets"
+ab = r"D:\ArknightsMapAssets\Level_07-13_assets"
 
 unity3d_env = UnityPy.load(unity3d)
 ab_env = UnityPy.load(ab)

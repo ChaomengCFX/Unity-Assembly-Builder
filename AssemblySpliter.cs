@@ -46,12 +46,12 @@ namespace AssemblyFixer
 
             if (typeDef.HasFields)
             {
-                foreach (FieldDefinition fieldDef in new HashSet<FieldDefinition>(typeDef.Fields))
+                foreach (FieldDefinition fieldDef in typeDef.Fields.ToArray())
                 {
                     if (fieldDef.HasCustomAttributes)
                     {
                         bool found = false;
-                        foreach (CustomAttribute attribute in new HashSet<CustomAttribute>(fieldDef.CustomAttributes))
+                        foreach (CustomAttribute attribute in fieldDef.CustomAttributes.ToArray())
                         {
                             if (attribute.AttributeType.FullName == "UnityEngine.SerializeField")
                             {
@@ -125,7 +125,7 @@ namespace AssemblyFixer
 
             _HandleNestedType(typeDef);
 
-            foreach (TypeDefinition depTypeDef in new HashSet<TypeDefinition>(deps))
+            foreach (TypeDefinition depTypeDef in deps.ToArray())
             {
                 if (m_closedList.Contains(depTypeDef) || !_CheckScope(depTypeDef))
                     deps.Remove(depTypeDef);
@@ -157,7 +157,7 @@ namespace AssemblyFixer
         {
             if (fieldDef.HasCustomAttributes)
             {
-                foreach (CustomAttribute attribute in new HashSet<CustomAttribute>(fieldDef.CustomAttributes))
+                foreach (CustomAttribute attribute in fieldDef.CustomAttributes.ToArray())
                 {
                     string scopeName = attribute.AttributeType.Scope.Name;
                     if (scopeName != "mscorlib.dll" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
@@ -181,7 +181,14 @@ namespace AssemblyFixer
                 typeDef.Events.Clear();
 
             if (typeDef.HasCustomAttributes)
-                typeDef.CustomAttributes.Clear();
+            {
+                foreach (CustomAttribute attribute in typeDef.CustomAttributes.ToArray())
+                {
+                    string scopeName = attribute.AttributeType.Scope.Name;
+                    if (scopeName != "mscorlib.dll" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
+                        typeDef.CustomAttributes.Remove(attribute);
+                }
+            }
 
             if (typeDef.HasInterfaces)
                 typeDef.Interfaces.Clear();
@@ -316,7 +323,7 @@ namespace AssemblyFixer
                 if (_typeDef.HasNestedTypes)
                 {
                     // 处理嵌套类
-                    foreach (TypeDefinition nestedTypeDef in new HashSet<TypeDefinition>(_typeDef.NestedTypes))
+                    foreach (TypeDefinition nestedTypeDef in _typeDef.NestedTypes.ToArray())
                     {
                         _HandleInternal(nestedTypeDef, _typeDef.NestedTypes);
                     }
@@ -325,7 +332,7 @@ namespace AssemblyFixer
 
             foreach (ModuleDefinition module in m_modules)
             {
-                foreach (TypeDefinition typeDef in new HashSet<TypeDefinition>(module.Types))
+                foreach (TypeDefinition typeDef in module.Types.ToArray())
                 {
                     _HandleInternal(typeDef, module.Types);
                 }

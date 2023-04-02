@@ -3,7 +3,7 @@ from pathlib import Path
 from get_abfile_dependences import *
 
 BASE_PATH = Path(r"D:/ArkAssets") # 下载资源存储位置
-SCENE_PATH = 'scenes/obt/main/level_main_08-17/level_main_08-17.ab' # 场景文件
+SCENE_PATH = 'scenes/obt/main/level_main_07-13/level_main_07-13.ab' # 场景文件
 
 manifest_env = UnityPy.load(str(BASE_PATH / 'torappu.ab'))
 
