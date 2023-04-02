@@ -160,7 +160,7 @@ namespace AssemblyFixer
                 foreach (CustomAttribute attribute in fieldDef.CustomAttributes.ToArray())
                 {
                     string scopeName = attribute.AttributeType.Scope.Name;
-                    if (scopeName != "mscorlib.dll" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
+                    if (scopeName != "mscorlib" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
                         fieldDef.CustomAttributes.Remove(attribute);
                 }
             }
@@ -185,7 +185,7 @@ namespace AssemblyFixer
                 foreach (CustomAttribute attribute in typeDef.CustomAttributes.ToArray())
                 {
                     string scopeName = attribute.AttributeType.Scope.Name;
-                    if (scopeName != "mscorlib.dll" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
+                    if (scopeName != "mscorlib" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
                         typeDef.CustomAttributes.Remove(attribute);
                 }
             }
