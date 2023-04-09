@@ -19,4 +19,4 @@ def handle(dirpath):
         print('Removing ' + str(p))
         os.remove(str(p))
 
-handle(r'D:\ArknightsMapAssets\Level_07-13_out\[uc]shaders.ab\ExportedProject\Assets') # 修复导出的assets
+handle(r'D:\ArknightsMapAssets\Level_1991_out\scenes_obt_roguelike_ro1_level_rogue1_4-5_level_rogue1_4-5.ab\ExportedProject\Assets') # 修复导出的assets
