@@ -6,9 +6,9 @@ namespace AssemblyFixer
     {
         static void Main(string[] args)
         {
-            AssemblySpliter spliter = new(@"D:\ArknightsDump\1.9.91\Il2cppDumperOut\DummyDll"); // dump程序集
+            AssemblySpliter spliter = new(@"D:\ArknightsDump\2.0.01\o\DummyDll"); // dump程序集
             spliter.Split(File.ReadAllLines(@"D:\ArknightsMapAssets\scripts.txt"));
-            spliter.SaveAll(@"D:\ArknightsMapAssets\Fixed"); // 程序集导出文件夹
+            spliter.SaveAll(@"D:\ArknightsMapAssets\Level_2001_assets\Fixed"); // 程序集导出文件夹
         }
     }
 }
