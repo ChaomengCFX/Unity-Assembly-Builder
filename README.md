@@ -1,1 +1,4 @@
 # AssemblyFixer
+输入il2cppdumper导出的程序集和需要保留的类，剥离掉非可序列化成员及没有被依赖的类，生成可导入unity的程序集
+# Shader Fixer
+修复重打包场景的shader问题
