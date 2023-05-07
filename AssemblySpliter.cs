@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Mono.Cecil;
+﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 
@@ -14,9 +11,11 @@ namespace AssemblyFixer
         private readonly HashSet<ModuleDefinition> m_modules = new();
         private readonly HashSet<TypeReference> m_closedList = new();
         private readonly HashSet<TypeReference> m_depList = new();
+        private readonly SplitSetting m_setting;
 
-        public AssemblySpliter(string path)
+        public AssemblySpliter(string path, SplitSetting? setting = null)
         {
+            m_setting = setting ?? new SplitSetting();
             m_path = path;
             MyAssemblyResolver resolver = new();
             foreach (FileInfo fileInfo in new DirectoryInfo(m_path).EnumerateFiles())
@@ -25,19 +24,22 @@ namespace AssemblyFixer
                 {
                     AssemblyDefinition assemblyDef = AssemblyDefinition.ReadAssembly(fileInfo.FullName, new ReaderParameters { AssemblyResolver = resolver });
                     resolver.Register(assemblyDef);
-                    if (!fileInfo.Name.Contains("UnityEngine") && 
-                        !fileInfo.Name.Contains("DOTween") && 
-                        !fileInfo.Name.Contains("System") && 
-                        !fileInfo.Name.Contains("mscorlib") && 
-                        !fileInfo.Name.Contains("Il2CppDummyDll") && 
-                        !fileInfo.Name.Contains("Newtonsoft.Json"))
+                    bool skip = false;
+                    foreach (string name in m_setting.skipAssemblies)
+                    {
+                        if (fileInfo.Name.Contains(name))
+                        {
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if (!skip)
                     {
                         m_assemblys.Add(assemblyDef);
                         m_modules.Add(assemblyDef.MainModule);
                     }
                 }
             }
-            //resolver.AddSearchDirectory(Directory.GetParent(m_path)?.FullName);
         }
 
         private bool _Split(TypeDefinition typeDef, out HashSet<TypeDefinition> deps)
@@ -98,7 +100,7 @@ namespace AssemblyFixer
                         else
                         {
                             TypeDefinition fieldTypeDef = fieldTypeRef.Resolve();
-                            if (_IsUnityObject(fieldTypeDef) || fieldTypeDef.Attributes.HasFlag(TypeAttributes.Serializable) || fieldTypeDef.FullName == "System.Collections.Generic.List`1")
+                            if (_IsUnityObject(fieldTypeDef) || fieldTypeDef.Attributes.HasFlag(TypeAttributes.Serializable) || fieldTypeDef.FullName == "System.Collections.Generic.List`1" || _IsJsonSerializeType(typeDef))
                             {
                                 _ClearCustomAttributesOfField(fieldDef);
                                 deps.Add(fieldTypeDef);
@@ -136,6 +138,13 @@ namespace AssemblyFixer
             return deps.Count != 0;
         }
 
+        private bool _IsJsonSerializeType(TypeReference typeRef)
+        {
+            if (typeRef.IsNested) 
+                return _IsJsonSerializeType(typeRef.DeclaringType);
+            return m_setting.jsonSerializeType.Contains(typeRef.FullName);
+        }
+
         private static bool _IsUnityObject(TypeDefinition typeDef)
         {
             TypeReference? baseRef = typeDef?.BaseType;
@@ -153,20 +162,30 @@ namespace AssemblyFixer
             }
         }
 
-        private static void _ClearCustomAttributesOfField(FieldDefinition fieldDef)
+        private void _ClearCustomAttributes(Collection<CustomAttribute> customAttributes)
         {
-            if (fieldDef.HasCustomAttributes)
+            foreach (CustomAttribute attribute in customAttributes.ToArray())
             {
-                foreach (CustomAttribute attribute in fieldDef.CustomAttributes.ToArray())
+                bool skip = true;
+                foreach (string name in m_setting.saveAttributes)
                 {
-                    string scopeName = attribute.AttributeType.Scope.Name;
-                    if (scopeName != "mscorlib" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
-                        fieldDef.CustomAttributes.Remove(attribute);
+                    if (attribute.AttributeType.Scope.Name.Contains(name))
+                    {
+                        skip = false;
+                    }
                 }
+                if (!skip)
+                    customAttributes.Remove(attribute);
             }
         }
 
-        private static void _ClearAllMembersInType(TypeDefinition typeDef, bool includeFields = false)
+        private void _ClearCustomAttributesOfField(FieldDefinition fieldDef)
+        {
+            if (fieldDef.HasCustomAttributes)
+                _ClearCustomAttributes(fieldDef.CustomAttributes);
+        }
+
+        private void _ClearAllMembersInType(TypeDefinition typeDef, bool includeFields = false)
         {
             if (includeFields && typeDef.HasFields)
                 typeDef.Fields.Clear();
@@ -181,14 +200,7 @@ namespace AssemblyFixer
                 typeDef.Events.Clear();
 
             if (typeDef.HasCustomAttributes)
-            {
-                foreach (CustomAttribute attribute in typeDef.CustomAttributes.ToArray())
-                {
-                    string scopeName = attribute.AttributeType.Scope.Name;
-                    if (scopeName != "mscorlib" && !scopeName.Contains("System") && !scopeName.Contains("UnityEngine"))
-                        typeDef.CustomAttributes.Remove(attribute);
-                }
-            }
+                _ClearCustomAttributes(typeDef.CustomAttributes);
 
             if (typeDef.HasInterfaces)
                 typeDef.Interfaces.Clear();
